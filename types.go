@@ -53,6 +53,61 @@ const (
 	AllowedPaymentImmediatePay         string = "IMMEDIATE_PAY"
 )
 
+// Possible values for `name` in EventType
+//
+// https://developer.paypal.com/docs/integration/direct/webhooks/event-names/
+const (
+	EventTypeBillingPlanCreated                  string = "BILLING.PLAN.CREATED"
+	EventTypeBillingPlanUpdated                  string = "BILLING.PLAN.UPDATED"
+	EventTypeBillingSubscriptionCancelled        string = "BILLING.SUBSCRIPTION.CANCELLED"
+	EventTypeBillingSubscriptionCreated          string = "BILLING.SUBSCRIPTION.CREATED"
+	EventTypeBillingSubscriptionReActivated      string = "BILLING.SUBSCRIPTION.RE-ACTIVATED"
+	EventTypeBillingSubscriptionSuspended        string = "BILLING.SUBSCRIPTION.SUSPENDED"
+	EventTypeBillingSubscriptionUpdated          string = "BILLING.SUBSCRIPTION.UPDATED"
+	EventTypeCustomerDisputeCreated              string = "CUSTOMER.DISPUTE.CREATED"
+	EventTypeCustomerDisputeResolved             string = "CUSTOMER.DISPUTE.RESOLVED"
+	EventTypeCustomerDisputeUpdated              string = "CUSTOMER.DISPUTE.UPDATED"
+	EventTypeRiskDisputeCreated                  string = "RISK.DISPUTE.CREATED"
+	EventTypeIdentityAuthorizationConsentRevoked string = "IDENTITY.AUTHORIZATION-CONSENT.REVOKED"
+	EventTypeInvoicingInvoiceCancelled           string = "INVOICING.INVOICE.CANCELLED"
+	EventTypeInvoicingInvoiceCreated             string = "INVOICING.INVOICE.CREATED"
+	EventTypeInvoicingInvoicePaid                string = "INVOICING.INVOICE.PAID"
+	EventTypeInvoicingInvoiceRefunded            string = "INVOICING.INVOICE.REFUNDED"
+	EventTypeInvoicingInvoiceScheduled           string = "INVOICING.INVOICE.SCHEDULED"
+	EventTypeInvoicingInvoiceUpdated             string = "INVOICING.INVOICE.UPDATED"
+	EventTypePaymentAuthorizationCreated         string = "PAYMENT.AUTHORIZATION.CREATED"
+	EventTypePaymentAuthorizationVoided          string = "PAYMENT.AUTHORIZATION.VOIDED"
+	EventTypePaymentCaptureCompleted             string = "PAYMENT.CAPTURE.COMPLETED"
+	EventTypePaymentCaptureDenied                string = "PAYMENT.CAPTURE.DENIED"
+	EventTypePaymentCapturePending               string = "PAYMENT.CAPTURE.PENDING"
+	EventTypePaymentCaptureRefunded              string = "PAYMENT.CAPTURE.REFUNDED"
+	EventTypePaymentCaptureReversed              string = "PAYMENT.CAPTURE.REVERSED"
+	EventTypePaymentOrderCancelled               string = "PAYMENT.ORDER.CANCELLED"
+	EventTypePaymentOrderCreated                 string = "PAYMENT.ORDER.CREATED"
+	EventTypePaymentPayoutsbatchDenied           string = "PAYMENT.PAYOUTSBATCH.DENIED"
+	EventTypePaymentPayoutsbatchProcessing       string = "PAYMENT.PAYOUTSBATCH.PROCESSING"
+	EventTypePaymentPayoutsbatchSuccess          string = "PAYMENT.PAYOUTSBATCH.SUCCESS"
+	EventTypePaymentPayoutsItemBlocked           string = "PAYMENT.PAYOUTS-ITEM.BLOCKED"
+	EventTypePaymentPayoutsItemCanceled          string = "PAYMENT.PAYOUTS-ITEM.CANCELED"
+	EventTypePaymentPayoutsItemDenied            string = "PAYMENT.PAYOUTS-ITEM.DENIED"
+	EventTypePaymentPayoutsItemFailed            string = "PAYMENT.PAYOUTS-ITEM.FAILED"
+	EventTypePaymentPayoutsItemHeld              string = "PAYMENT.PAYOUTS-ITEM.HELD"
+	EventTypePaymentPayoutsItemRefunded          string = "PAYMENT.PAYOUTS-ITEM.REFUNDED"
+	EventTypePaymentPayoutsItemReturned          string = "PAYMENT.PAYOUTS-ITEM.RETURNED"
+	EventTypePaymentPayoutsItemSucceeded         string = "PAYMENT.PAYOUTS-ITEM.SUCCEEDED"
+	EventTypePaymentPayoutsItemUnclaimed         string = "PAYMENT.PAYOUTS-ITEM.UNCLAIMED"
+	EventTypePaymentSaleCompleted                string = "PAYMENT.SALE.COMPLETED"
+	EventTypePaymentSaleDenied                   string = "PAYMENT.SALE.DENIED"
+	EventTypePaymentSalePending                  string = "PAYMENT.SALE.PENDING"
+	EventTypePaymentSaleRefunded                 string = "PAYMENT.SALE.REFUNDED"
+	EventTypePaymentSaleReversed                 string = "PAYMENT.SALE.REVERSED"
+	EventTypeVaultCreditCardCreated              string = "VAULT.CREDIT-CARD.CREATED"
+	EventTypeVaultCreditCardDeleted              string = "VAULT.CREDIT-CARD.DELETED"
+	EventTypeVaultCreditCardUpdated              string = "VAULT.CREDIT-CARD.UPDATED"
+	EventTypeMerchantOnboardingCompleted         string = "MERCHANT.ONBOARDING.COMPLETED"
+	EventTypeMerchantPartnerConsentRevoked       string = "MERCHANT.PARTNER-CONSENT.REVOKED"
+)
+
 type (
 	// JSONTime overrides MarshalJson method to format in ISO8601
 	JSONTime time.Time
@@ -572,6 +627,101 @@ type (
 		LandingPageType   string `json:"landing_page_type,omitempty"`
 		BankTXNPendingURL string `json:"bank_txn_pending_url,omitempty"`
 		UserAction        string `json:"user_action,omitempty"`
+	}
+
+	// EventTypeList struct
+	EventTypeList struct {
+		EventTypes []EventType `json:"event_types"`
+	}
+
+	// Webhook struct
+	Webhook struct {
+		ID         string      `json:"id,omitempty"`
+		URL        string      `json:"url"`
+		EventTypes []EventType `json:"event_types"`
+		Links      []Link      `json:"links,omitempty"`
+	}
+
+	// EventType struct
+	EventType struct {
+		Name        string `json:"name"`
+		Description string `json:"description,omitempty"`
+		Status      string `json:"status,omitempty"`
+	}
+
+	// WebhookPatch struct
+	WebhookPatch struct {
+		Operation string      `json:"op"`
+		Path      string      `json:"path"`
+		Value     interface{} `json:"value"`
+	}
+
+	// EventList struct
+	EventList struct {
+		Events []Event `json:"events"`
+		Count  int     `json:"count"`
+		Links  []Link  `json:"links"`
+	}
+
+	// Event struct
+	Event struct {
+		ID           string               `json:"id"`
+		CreateTime   time.Time            `json:"create_time"`
+		ResourceType string               `json:"resource_type"`
+		EventVersion string               `json:"event_version"`
+		EventType    string               `json:"event_type"`
+		Summary      string               `json:"summary"`
+		Resource     WebhookEventResource `json:"resource"`
+		Links        []Link               `json:"links"`
+	}
+
+	// WebhookEventResource struct
+	WebhookEventResource struct {
+		ID            string    `json:"id"`
+		CreateTime    time.Time `json:"create_time"`
+		UpdateTime    time.Time `json:"update_time"`
+		State         string    `json:"state"`
+		Amount        Amount    `json:"amount"`
+		ParentPayment string    `json:"parent_payment"`
+		ValidUntil    string    `json:"valid_until"`
+		Links         []Link    `json:"links"`
+	}
+
+	// GetWebhookEventsFilter struct
+	GetWebhookEventsFilter struct {
+		PageSize      int
+		StartTime     time.Time
+		EndTime       time.Time
+		TransactionID string
+		EventType     string
+	}
+
+	// WebhookRequest struct
+	WebhookRequest struct {
+		TransmissionID        string    `json:"transmission_id"`
+		TransmissionTime      time.Time `json:"transmission_time"`
+		CertURL               string    `json:"cert_url"`
+		AuthAlgorithm         string    `json:"auth_algo"`
+		TransmissionSignature string    `json:"transmission_sig"`
+		WebhookID             string    `json:"webhook_id"`
+		WebhookEvent          Event     `json:"webhook_event"`
+	}
+
+	// WebhookIDList struct
+	WebhookIDList struct {
+		WebhookIDs []string `json:"webhook_ids,omitempty"`
+	}
+
+	// SimulateEventReq struct
+	SimulateEventReq struct {
+		WebhookID string `json:"webhook_id,omitempty"`
+		URL       string `json:"url,omitempty"`
+		EventType string `json:"event_type"`
+	}
+
+	// VerificationStatus struct
+	VerificationStatus struct {
+		VerificationStatus string `json:"verification_status"`
 	}
 )
 
