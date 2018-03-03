@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	pp "github.com/logpacker/PayPal-Go-SDK"
+	pp "github.com/slugalisk/PayPal-Go-SDK"
 )
 
 func BillingExample() {
@@ -94,7 +94,7 @@ func BillingExample() {
 	}
 	err = c.ActivatePlan(planResp.ID)
 	fmt.Println(err)
-	agreement := pp.BillingAgreement{
+	agreement := pp.CreateBillingAgreementReq{
 		Name:        "Fast Speed Agreement",
 		Description: "Agreement for Fast Speed Plan",
 		StartDate:   pp.JSONTime(time.Now().Add(time.Hour * 24)),

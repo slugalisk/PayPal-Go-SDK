@@ -17,16 +17,30 @@ type (
 		MerchantPreferences MerchantPreferences `json:"merchant_preferences,omitempty"`
 		CreateTime          time.Time           `json:"create_time,omitempty"`
 		UpdateTime          time.Time           `json:"update_time,omitempty"`
-		Links               []Link              `json:"links,omitempty"`
+		Links               Links               `json:"links,omitempty"`
 	}
 
-	// CreateAgreementResp struct
-	CreateAgreementResp struct {
+	// CreateBillingAgreementResp struct
+	CreateBillingAgreementResp struct {
 		Name        string      `json:"name,omitempty"`
 		Description string      `json:"description,omitempty"`
+		Payer       Payer       `json:"payer"`
 		Plan        BillingPlan `json:"plan,omitempty"`
-		Links       []Link      `json:"links,omitempty"`
-		StartTime   time.Time   `json:"start_time,omitempty"`
+		Links       Links       `json:"links,omitempty"`
+		StartDate   time.Time   `json:"start_date,omitempty"`
+	}
+
+	// CreateBillingAgreementReq struct
+	CreateBillingAgreementReq struct {
+		Name                        string               `json:"name,omitempty"`
+		Description                 string               `json:"description,omitempty"`
+		Payer                       Payer                `json:"payer"`
+		Plan                        BillingPlan          `json:"plan,omitempty"`
+		ShippingAddress             *ShippingAddress     `json:"shipping_address,omitempty"`
+		OverrideMerchantPreferences *MerchantPreferences `json:"override_merchant_preferences,omitempty"`
+		OverrideChargeModels        []ChargeModel        `json:"override_charge_models,omitempty"`
+		Links                       Links                `json:"links,omitempty"`
+		StartDate                   JSONTime             `json:"start_date,omitempty"`
 	}
 )
 
@@ -58,14 +72,14 @@ func (c *Client) ActivatePlan(planID string) error {
 
 // CreateBillingAgreement creates an agreement for specified plan
 // Endpoint: POST /v1/payments/billing-agreements
-func (c *Client) CreateBillingAgreement(a BillingAgreement) (*CreateAgreementResp, error) {
+func (c *Client) CreateBillingAgreement(a CreateBillingAgreementReq) (*CreateBillingAgreementResp, error) {
 	// PayPal needs only ID, so we will remove all fields except Plan ID
 	a.Plan = BillingPlan{
 		ID: a.Plan.ID,
 	}
 
 	req, err := c.NewRequest("POST", fmt.Sprintf("%s%s", c.APIBase, "/v1/payments/billing-agreements"), a)
-	response := &CreateAgreementResp{}
+	response := &CreateBillingAgreementResp{}
 	if err != nil {
 		return response, err
 	}

@@ -16,7 +16,7 @@ import (
 //
 // Endpoint: POST /v1/notifications/webhooks
 func (c *Client) CreateWebhook(w Webhook) (*Webhook, error) {
-	url := fmt.Sprintf("%s%s", c.APIBase, "/v1/notifications/webhooks")
+	url := fmt.Sprintf("%s/v1/notifications/webhooks", c.APIBase)
 	req, err := c.NewRequest("POST", url, w)
 	if err != nil {
 		return &Webhook{}, err
@@ -37,7 +37,7 @@ func (c *Client) CreateWebhook(w Webhook) (*Webhook, error) {
 func (c *Client) GetWebhook(webhookID string) (*Webhook, error) {
 	var w Webhook
 
-	url := fmt.Sprintf("%s%s%s", c.APIBase, "/v1/notifications/webhooks/", webhookID)
+	url := fmt.Sprintf("%s/v1/notifications/webhooks/%s", c.APIBase, webhookID)
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
@@ -59,20 +59,22 @@ func (c *Client) GetWebhook(webhookID string) (*Webhook, error) {
 //
 // Endpoint: GET /v1/notifications/webhooks
 func (c *Client) GetWebhooks() ([]Webhook, error) {
-	var ws []Webhook
+	var ws struct {
+		Webhooks []Webhook `json:"webhooks"`
+	}
 
-	url := fmt.Sprintf("%s%s", c.APIBase, "/v1/notifications/webhooks")
+	url := fmt.Sprintf("%s/v1/notifications/webhooks", c.APIBase)
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
-		return ws, err
+		return ws.Webhooks, err
 	}
 
 	if err = c.SendWithAuth(req, &ws); err != nil {
-		return ws, err
+		return ws.Webhooks, err
 	}
 
-	return ws, nil
+	return ws.Webhooks, nil
 }
 
 // SetWebhook sets a webhook in Paypal with given id
@@ -83,7 +85,7 @@ func (c *Client) SetWebhook(w Webhook) error {
 		return fmt.Errorf("paypalsdk: no ID specified for Webhook")
 	}
 
-	url := fmt.Sprintf("%s%s%s", c.APIBase, "/v1/notifications/webhooks/", w.ID)
+	url := fmt.Sprintf("%s/v1/notifications/webhooks/%s", c.APIBase, w.ID)
 
 	p := []WebhookPatch{
 		WebhookPatch{
@@ -115,7 +117,7 @@ func (c *Client) SetWebhook(w Webhook) error {
 //
 // Endpoint: DELETE /v1/notifications/webhooks
 func (c *Client) DeleteWebhook(webhookID string) error {
-	url := fmt.Sprintf("%s%s%s", c.APIBase, "/v1/notifications/webhooks/", webhookID)
+	url := fmt.Sprintf("%s/v1/notifications/webhooks/%s", c.APIBase, webhookID)
 
 	req, err := c.NewRequest("DELETE", url, nil)
 
@@ -136,7 +138,7 @@ func (c *Client) DeleteWebhook(webhookID string) error {
 func (c *Client) GetWebhookEventTypes() (*EventTypeList, error) {
 	var e EventTypeList
 
-	url := fmt.Sprintf("%s%s", c.APIBase, "/v1/notifications/webhooks-event-types")
+	url := fmt.Sprintf("%s/v1/notifications/webhooks-event-types", c.APIBase)
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
@@ -156,7 +158,7 @@ func (c *Client) GetWebhookEventTypes() (*EventTypeList, error) {
 func (c *Client) GetWebhookEvent(eventID string) (*Event, error) {
 	var e Event
 
-	url := fmt.Sprintf("%s%s%s", c.APIBase, "/v1/notifications/webhook-events/", eventID)
+	url := fmt.Sprintf("%s/v1/notifications/webhook-events/%s", c.APIBase, eventID)
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
@@ -180,7 +182,7 @@ func (c *Client) GetWebhookEvent(eventID string) (*Event, error) {
 func (c *Client) ResendWebhookEvent(eventID string, webhookIDs []string) (*Event, error) {
 	var e Event
 
-	url := fmt.Sprintf("%s%s%s%s", c.APIBase, "/v1/notifications/webhook-events/", eventID, "/resend")
+	url := fmt.Sprintf("%s/v1/notifications/webhook-events/%s/resend", c.APIBase, eventID)
 
 	w := WebhookIDList{
 		WebhookIDs: webhookIDs,
@@ -222,7 +224,7 @@ func (c *Client) GetWebhookEvents(f GetWebhookEventsFilter) (*[]Event, error) {
 		qs.Set("event_type", f.EventType)
 	}
 
-	url := fmt.Sprintf("%s%s%s", c.APIBase, "/v1/notifications/webhook-events", qs.Encode())
+	url := fmt.Sprintf("%s/v1/notifications/webhook-events?%s", c.APIBase, qs.Encode())
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
@@ -242,7 +244,7 @@ func (c *Client) GetWebhookEvents(f GetWebhookEventsFilter) (*[]Event, error) {
 func (c *Client) SimulateWebhookEvent(r SimulateEventReq) (*Event, error) {
 	var e Event
 
-	url := fmt.Sprintf("%s%s", c.APIBase, "/v1/notifications/simulate-event")
+	url := fmt.Sprintf("%s/v1/notifications/simulate-event", c.APIBase)
 
 	buf, _ := json.Marshal(r)
 	log.Println(string(buf))
@@ -266,7 +268,7 @@ func (c *Client) SimulateWebhookEvent(r SimulateEventReq) (*Event, error) {
 func (c *Client) VerifyWebhookSignature(r WebhookRequest) (*VerificationStatus, error) {
 	var e VerificationStatus
 
-	url := fmt.Sprintf("%s%s", c.APIBase, "/v1/notifications/verify-webhook-signature")
+	url := fmt.Sprintf("%s/v1/notifications/verify-webhook-signature", c.APIBase)
 
 	req, err := c.NewRequest("POST", url, r)
 

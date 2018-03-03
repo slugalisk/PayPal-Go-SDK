@@ -108,6 +108,18 @@ const (
 	EventTypeMerchantPartnerConsentRevoked       string = "MERCHANT.PARTNER-CONSENT.REVOKED"
 )
 
+// Possible values for `rel` in Link
+const (
+	LinkRelApprovalURL string = "approval_url"
+	LinkRelExecute     string = "execute"
+)
+
+// Possible values for `payment_method` in Payer
+const (
+	PaymentMethodBank   string = "bank"
+	PaymentMethodPaypal string = "paypal"
+)
+
 type (
 	// JSONTime overrides MarshalJson method to format in ISO8601
 	JSONTime time.Time
@@ -157,7 +169,7 @@ type (
 		ParentPayment             string     `json:"parent_payment,omitempty"`
 		ID                        string     `json:"id,omitempty"`
 		ValidUntil                *time.Time `json:"valid_until,omitempty"`
-		Links                     []Link     `json:"links,omitempty"`
+		Links                     Links      `json:"links,omitempty"`
 		ClearingTime              string     `json:"clearing_time,omitempty"`
 		ProtectionEligibility     string     `json:"protection_eligibility,omitempty"`
 		ProtectionEligibilityType string     `json:"protection_eligibility_type,omitempty"`
@@ -203,7 +215,7 @@ type (
 		State          string     `json:"state,omitempty"`
 		ParentPayment  string     `json:"parent_payment,omitempty"`
 		ID             string     `json:"id,omitempty"`
-		Links          []Link     `json:"links,omitempty"`
+		Links          Links      `json:"links,omitempty"`
 	}
 
 	// ChargeModel struct
@@ -243,7 +255,7 @@ type (
 	// CreditCards GET /v1/vault/credit-cards
 	CreditCards struct {
 		Items      []CreditCard `json:"items"`
-		Links      []Link       `json:"links"`
+		Links      Links        `json:"links"`
 		TotalItems int          `json:"total_items"`
 		TotalPages int          `json:"total_pages"`
 	}
@@ -290,7 +302,7 @@ type (
 	ErrorResponseDetail struct {
 		Field string `json:"field"`
 		Issue string `json:"issue"`
-		Links []Link `json:"link"`
+		Links Links  `json:"link"`
 	}
 
 	// ErrorResponse https://developer.paypal.com/docs/api/errors/
@@ -313,13 +325,13 @@ type (
 		StartDate        time.Time        `json:"start_date"`
 		ShippingAddress  ShippingAddress  `json:"shipping_address"`
 		AgreementDetails AgreementDetails `json:"agreement_details"`
-		Links            []Link           `json:"links"`
+		Links            Links            `json:"links"`
 	}
 
 	// ExecuteResponse struct
 	ExecuteResponse struct {
 		ID           string        `json:"id"`
-		Links        []Link        `json:"links"`
+		Links        Links         `json:"links"`
 		State        string        `json:"state"`
 		Payer        PaymentPayer  `json:"payer"`
 		Transactions []Transaction `json:"transactions,omitempty"`
@@ -356,6 +368,9 @@ type (
 		Enctype string `json:"enctype,omitempty"`
 	}
 
+	// Links slice
+	Links []Link
+
 	// MerchantPreferences struct
 	MerchantPreferences struct {
 		SetupFee                *AmountPayout `json:"setup_fee,omitempty"`
@@ -375,7 +390,7 @@ type (
 		Amount        *Amount    `json:"amount,omitempty"`
 		PendingReason string     `json:"pending_reason,omitempty"`
 		ParentPayment string     `json:"parent_payment,omitempty"`
-		Links         []Link     `json:"links,omitempty"`
+		Links         Links      `json:"links,omitempty"`
 	}
 
 	// Payer struct
@@ -445,7 +460,7 @@ type (
 	// PaymentResponse structure
 	PaymentResponse struct {
 		ID    string `json:"id"`
-		Links []Link `json:"links"`
+		Links Links  `json:"links"`
 	}
 
 	// Payout struct
@@ -472,7 +487,7 @@ type (
 		PayoutItemFee     *AmountPayout `json:"payout_item_fee,omitempty"`
 		PayoutItem        *PayoutItem   `json:"payout_item"`
 		TimeProcessed     *time.Time    `json:"time_processed,omitempty"`
-		Links             []Link        `json:"links"`
+		Links             Links         `json:"links"`
 		Error             ErrorResponse `json:"errors,omitempty"`
 	}
 
@@ -480,7 +495,7 @@ type (
 	PayoutResponse struct {
 		BatchHeader *BatchHeader         `json:"batch_header"`
 		Items       []PayoutItemResponse `json:"items"`
-		Links       []Link               `json:"links"`
+		Links       Links                `json:"links"`
 	}
 
 	// RedirectURLs struct
@@ -525,7 +540,7 @@ type (
 		ClearingTime              string     `json:"clearing_time,omitempty"`
 		ProtectionEligibility     string     `json:"protection_eligibility,omitempty"`
 		ProtectionEligibilityType string     `json:"protection_eligibility_type,omitempty"`
-		Links                     []Link     `json:"links,omitempty"`
+		Links                     Links      `json:"links,omitempty"`
 	}
 
 	// SenderBatchHeader struct
@@ -639,7 +654,7 @@ type (
 		ID         string      `json:"id,omitempty"`
 		URL        string      `json:"url"`
 		EventTypes []EventType `json:"event_types"`
-		Links      []Link      `json:"links,omitempty"`
+		Links      Links       `json:"links,omitempty"`
 	}
 
 	// EventType struct
@@ -660,7 +675,7 @@ type (
 	EventList struct {
 		Events []Event `json:"events"`
 		Count  int     `json:"count"`
-		Links  []Link  `json:"links"`
+		Links  Links   `json:"links"`
 	}
 
 	// Event struct
@@ -672,7 +687,7 @@ type (
 		EventType    string               `json:"event_type"`
 		Summary      string               `json:"summary"`
 		Resource     WebhookEventResource `json:"resource"`
-		Links        []Link               `json:"links"`
+		Links        Links                `json:"links"`
 	}
 
 	// WebhookEventResource struct
@@ -684,7 +699,7 @@ type (
 		Amount        Amount    `json:"amount"`
 		ParentPayment string    `json:"parent_payment"`
 		ValidUntil    string    `json:"valid_until"`
-		Links         []Link    `json:"links"`
+		Links         Links     `json:"links"`
 	}
 
 	// GetWebhookEventsFilter struct
@@ -748,4 +763,14 @@ func (e *expirationTime) UnmarshalJSON(b []byte) error {
 	}
 	*e = expirationTime(i)
 	return nil
+}
+
+// Find returns link matching supplied rel
+func (l Links) Find(rel string) (*Link, bool) {
+	for _, link := range l {
+		if link.Rel == rel {
+			return &link, true
+		}
+	}
+	return nil, false
 }
