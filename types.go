@@ -160,6 +160,15 @@ type (
 		Value    string `json:"value"`
 	}
 
+	// ApplicationContext struct
+	ApplicationContext struct {
+		BrandName          string `json:"brand_name"`
+		Locale             string `json:"locale"`
+		LandingPage        string `json:"landing_page"`
+		ShippingPreference string `json:"shipping_preference"`
+		UserAction         string `json:"user_action"`
+	}
+
 	// Authorization struct
 	Authorization struct {
 		Amount                    *Amount    `json:"amount,omitempty"`
@@ -299,6 +308,7 @@ type (
 		GiftWrap         string `json:"gift_wrap,omitempty"`
 	}
 
+	// ErrorResponseDetail struct
 	ErrorResponseDetail struct {
 		Field string `json:"field"`
 		Issue string `json:"issue"`
@@ -345,7 +355,7 @@ type (
 
 	// Item struct
 	Item struct {
-		Quantity    int    `json:"quantity"`
+		Quantity    string `json:"quantity"`
 		Name        string `json:"name"`
 		Price       string `json:"price"`
 		Currency    string `json:"currency"`
@@ -416,15 +426,16 @@ type (
 
 	// Payment struct
 	Payment struct {
-		Intent              string        `json:"intent"`
-		Payer               *Payer        `json:"payer"`
-		Transactions        []Transaction `json:"transactions"`
-		RedirectURLs        *RedirectURLs `json:"redirect_urls,omitempty"`
-		ID                  string        `json:"id,omitempty"`
-		CreateTime          *time.Time    `json:"create_time,omitempty"`
-		State               string        `json:"state,omitempty"`
-		UpdateTime          *time.Time    `json:"update_time,omitempty"`
-		ExperienceProfileID string        `json:"experience_profile_id,omitempty"`
+		Intent              string              `json:"intent"`
+		Payer               *Payer              `json:"payer"`
+		ApplicationContext  *ApplicationContext `json:"application_context,omitempty"`
+		Transactions        []Transaction       `json:"transactions"`
+		RedirectURLs        *RedirectURLs       `json:"redirect_urls,omitempty"`
+		ID                  string              `json:"id,omitempty"`
+		CreateTime          *time.Time          `json:"create_time,omitempty"`
+		State               string              `json:"state,omitempty"`
+		UpdateTime          *time.Time          `json:"update_time,omitempty"`
+		ExperienceProfileID string              `json:"experience_profile_id,omitempty"`
 	}
 
 	// PaymentDefinition struct
@@ -439,6 +450,7 @@ type (
 		ChargeModels      []ChargeModel `json:"charge_models,omitempty"`
 	}
 
+	// PaymentOptions struct
 	PaymentOptions struct {
 		AllowedPaymentMethod string `json:"allowed_payment_method,omitempty"`
 	}
@@ -582,6 +594,14 @@ type (
 		SoftDescriptor   string          `json:"soft_descriptor,omitempty"`
 		RelatedResources []Related       `json:"related_resources,omitempty"`
 		PaymentOptions   *PaymentOptions `json:"payment_options,omitempty"`
+		NotifyURL        string          `json:"notify_url,omitempty"`
+		OrderURL         string          `json:"order_url,omitempty"`
+		Payee            *Payee          `json:"payee,omitempty"`
+	}
+
+	//Payee struct
+	Payee struct {
+		Email string `json:"email"`
 	}
 
 	// UserInfo struct
