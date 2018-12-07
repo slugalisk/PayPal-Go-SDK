@@ -15,7 +15,7 @@ type ListPaymentsResp struct {
 // CreatePaymentResp contains Payment Info and Links slice
 type CreatePaymentResp struct {
 	*Payment
-	Links []Link `json:"links"`
+	Links Links `json:"links"`
 }
 
 // CreateDirectPaypalPayment sends request to create a payment with payment_method=paypal
